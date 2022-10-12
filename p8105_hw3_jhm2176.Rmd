@@ -11,7 +11,7 @@ knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 
 ```{r load_libraries}
 library(tidyverse)
-
+library(readr)
 ```
 
 ### Problem 1
@@ -29,7 +29,24 @@ This problem uses five weeks of accelerometer data collected on a 63 year-old ma
 Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc):
 
 ```{r}
+accel_data = 
+  read_csv("data/accel_data.csv") %>%
+  janitor::clean_names() %>%
+  view()
+```
 
+```{r}
+accel_tidy_data =
+  pivot_longer(
+    accel_data, 
+    activity_1:activity_1440,
+    names_to = "minute", 
+    names_prefix = "activity_",
+    values_to = "activity_count") %>%
+  mutate(
+    day_type = recode(day, "Monday" = "weekday", "Tuesday" = "weekday", "Wednesday" = "weekday", "Thursday" = "weekday", "Friday" = "weekday", "Saturday" = "weekend", "Sunday" = "weekend"))
+
+view(accel_tidy_data)
 ```
 
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
