@@ -1,0 +1,21 @@
+---
+title: "Homework 3"
+author: "Jenesis Merriman"
+date: "October 15, 2022"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+```
+
+```{r load_libraries}
+library(tidyverse)
+
+```
+
+### Problem 1
+
+### Problem 2
+
+### Problem 3
