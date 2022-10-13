@@ -139,7 +139,17 @@ Then, do or answer the following (commenting on the results of each):
 Do some data cleaning. Create separate variables for year, month, and day. Ensure observations for temperature, precipitation, and snowfall are given in reasonable units. For snowfall, what are the most commonly observed values? Why?
 
 ```{r}
+ny_noaa_tidy =
+  ny_noaa %>%
+  janitor::clean_names() %>%
+  separate(col = date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(
+    month = month.name[as.numeric(month)],
+    month = factor(month, levels = month.name), 
+    tmax = as.integer(tmax),
+    tmin = as.integer(tmin))
 
+head(ny_noaa_tidy)
 ```
 
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
