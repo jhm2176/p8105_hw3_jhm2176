@@ -46,16 +46,24 @@ accel_tidy_data =
   mutate(
     day_type = as.factor(ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")),
     minute = as.double(minute),
-    day = as.factor(day))
+    day = as.factor(ordered(day, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))))
+  
 
 view(accel_tidy_data)
-head(accel_tidy_data)
 ```
 
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
 
-```{r}
+The following code returns a table showing the total activity counts for each day by week:
 
+```{r}
+accel_tidy_data %>%
+  group_by(week, day) %>%
+  summarize(total_activity = sum(activity_count)) %>%
+  pivot_wider(
+    names_from = "day", 
+    values_from = "total_activity") %>%
+  knitr::kable(digits = 1)
 ```
 
 Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
