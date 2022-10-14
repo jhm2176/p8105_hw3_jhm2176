@@ -140,19 +140,25 @@ ny_noaa_tidy =
     tmin = as.integer(tmin))
 
 head(ny_noaa_tidy)
-view(ny_noaa_tidy)
 ```
 
-Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
+```{r}
+ny_noaa_tidy %>% 
+  count(snow) %>% 
+  arrange(desc(n))
+```
+*The most commonly observed values for snowfall are 0 mm, NA, and 25 mm. This is because there are far more days in the year with no snow (snow = 0) than days with snow. This dataset also contains extensive missing data, explaining the high number of NA values.*
+
+Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interprettable structure? Any outliers?
 
 ```{r}
-
+facet_grid()
 ```
 
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
 ```{r}
-
+patchwork::
 ```
 
 
