@@ -36,22 +36,6 @@ library(tidyverse)
 library(readr)
 ```
 
-```{r plot options}
-knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%")
-
-theme_set(theme_minimal() + theme(legend.position = "bottom"))
-
-options(
-  ggplot2.continuous.colour = "viridis",
-  ggplot2.continuous.fill = "viridis")
-
-scale_colour_discrete = scale_colour_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
-```
-
 ### Problem 1
 
 ```{r}
@@ -62,9 +46,11 @@ data("instacart")
 ### Problem 2
 Accelerometers have become an appealing alternative to self-report techniques for studying physical activity in observational studies and clinical trials, largely because of their relative objectivity. During observation periods, the devices measure “activity counts” in a short period; one-minute intervals are common. Because accelerometers can be worn comfortably and unobtrusively, they produce around-the-clock observations.
 
-This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF). The data can be downloaded here. In this spreadsheet, variables activity.* are the activity counts for each minute of a 24-hour day starting at midnight.
+This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF). In this spreadsheet, variables activity.* are the activity counts for each minute of a 24-hour day starting at midnight.
 
 Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc):
+
+First I will load the data, cleaning names:
 
 ```{r load}
 accel_data = 
@@ -72,6 +58,8 @@ accel_data =
   janitor::clean_names() %>%
   view()
 ```
+
+Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) fo each observation, make 'minute' a double variable, and sort 'day' (days of the week) chronologically. 
 
 ```{r tidy}
 accel_tidy_data =
@@ -90,9 +78,11 @@ accel_tidy_data =
 view(accel_tidy_data)
 ```
 
+*The resulting dataset contains `r nrow(accel_tidy_data)` rows and `r ncol(accel_tidy_data)` columns, with each row representing a single minute of accelerometer data for a 63 year-old male over the course of five weeks. Variables include week number (week), day ID (day_id), day of the week (day), minute of the day starting at midnight (minute), activity count per minute (activity_count), and whether or not the observation falls on a weekday or weekend (day_type).*
+
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
 
-The following code returns a table showing the total activity counts for each day by week:
+The following code returns a table showing the total activity counts for each day by week, with days sorted chronologically from Monday-Sunday:
 
 ```{r}
 accel_tidy_data %>%
