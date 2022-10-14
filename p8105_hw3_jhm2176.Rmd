@@ -149,16 +149,27 @@ ny_noaa_tidy %>%
 ```
 *The most commonly observed values for snowfall are 0 mm, NA, and 25 mm. This is because there are far more days in the year with no snow (snow = 0) than days with snow. This dataset also contains extensive missing data, explaining the high number of NA values.*
 
-Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interprettable structure? Any outliers?
+Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interprettable structure? Any outliers? facet_grid()
 
 ```{r}
-facet_grid()
+ny_noaa_tidy %>%
+  filter(
+    month %in% c("January","July")) %>% 
+  group_by(id, month, year) %>% 
+  summarize(
+    tmax_mean = mean(tmax, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = tmax_mean, group = id, color = id)) +
+  geom_line(show.legend = FALSE) +
+  facet_grid(.~month) +
+  theme(axis.text.x = element_blank())
 ```
 
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
-```{r}
 patchwork::
+
+```{r}
+
 ```
 
 
