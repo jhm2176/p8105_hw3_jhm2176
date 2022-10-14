@@ -44,9 +44,10 @@ data("instacart")
 ```
 
 ### Problem 2
-Accelerometers have become an appealing alternative to self-report techniques for studying physical activity in observational studies and clinical trials, largely because of their relative objectivity. During observation periods, the devices measure “activity counts” in a short period; one-minute intervals are common. Because accelerometers can be worn comfortably and unobtrusively, they produce around-the-clock observations.
 
-This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF). In this spreadsheet, variables activity.* are the activity counts for each minute of a 24-hour day starting at midnight.
+Accelerometers have become an appealing alternative to self-report techniques for studying physical activity in observational studies and clinical trials, largely because of their relative objectivity. During observation periods, the devices measure "activity counts" in a short period; one-minute intervals are common. Because accelerometers can be worn comfortably and unobtrusively, they produce around-the-clock observations.
+
+This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF). In this spreadsheet, variables activity.\* are the activity counts for each minute of a 24-hour day starting at midnight.
 
 Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc):
 
@@ -59,7 +60,7 @@ accel_data =
   view()
 ```
 
-Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) fo each observation, make 'minute' a double variable, and sort 'day' (days of the week) chronologically. 
+Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) fo each observation, make 'minute' a double variable, and sort 'day' (days of the week) chronologically.
 
 ```{r tidy}
 accel_tidy_data =
@@ -122,11 +123,13 @@ view(ny_noaa)
 head(ny_noaa)
 ```
 
-*This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns, with each row representing a single New York state weather station between January 1, 1981 and December 31, 2010. Variables include weather station ID (id), date of observation (date), precipitation in tenths of mm (prcp), snowfall in mm (snow), snow depth in mm (snwd), maximum temperature in tenths of degrees C (tmax), and minimum temperature in tenths of degrees C (tmin). Because each weather station may collect only a subset of these variables, the resulting dataset contains substantial missing data. For example, only *
+*This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns, with each row representing a single New York state weather station between January 1, 1981 and December 31, 2010. Variables include weather station ID (id), date of observation (date), precipitation in tenths of mm (prcp), snowfall in mm (snow), snow depth in mm (snwd), maximum temperature in tenths of degrees C (tmax), and minimum temperature in tenths of degrees C (tmin). Because each weather station may collect only a subset of these variables, the resulting dataset contains substantial missing data. For example, only*
 
 Then, do or answer the following (commenting on the results of each):
 
 Do some data cleaning. Create separate variables for year, month, and day. Ensure observations for temperature, precipitation, and snowfall are given in reasonable units. For snowfall, what are the most commonly observed values? Why?
+
+*This code uses `separate` to create separate variables for year, month, and day and `mutate` to convert temperature and precipitation variables to reasonable units. Specifically, 'tmax' and 'tmin' were converted from tenths of degrees celsius to degrees celsius by transforming the variable type from character to numeric and dividing each value by 10. 'prcp' was converted from tenths of a millimeter to millimeters by dividing each value by 10.*
 
 ```{r}
 ny_noaa_tidy =
@@ -134,12 +137,24 @@ ny_noaa_tidy =
   janitor::clean_names() %>%
   separate(col = date, into = c("year", "month", "day"), sep = "-") %>%
   mutate(
+    day = as.integer(day),
+    year = as.factor(year),
     month = month.name[as.numeric(month)],
     month = factor(month, levels = month.name), 
+    prcp = as.double(prcp / 10),
     tmax = as.integer(tmax),
-    tmin = as.integer(tmin))
+    tmax = as.double(tmax / 10),
+    tmin = as.integer(tmin),
+    tmin = as.double(tmin / 10))
+```
 
-head(ny_noaa_tidy)
+```{r}
+ny_noaa_sam = 
+  ny_noaa_tidy %>% 
+  sample_n(2000) %>%
+  view()
+
+head(ny_noaa_sam)
 ```
 
 ```{r}
@@ -147,6 +162,7 @@ ny_noaa_tidy %>%
   count(snow) %>% 
   arrange(desc(n))
 ```
+
 *The most commonly observed values for snowfall are 0 mm, NA, and 25 mm. This is because there are far more days in the year with no snow (snow = 0) than days with snow. This dataset also contains extensive missing data, explaining the high number of NA values.*
 
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interprettable structure? Any outliers? facet_grid()
@@ -171,10 +187,3 @@ patchwork::
 ```{r}
 
 ```
-
-
-
-
-
-
-
