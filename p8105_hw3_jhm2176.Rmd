@@ -44,18 +44,17 @@ data("instacart")
 
 ### Problem 2
 
-This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF). 
+*This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF).*
 
 First I will load the data while cleaning names:
 
 ```{r load}
 accel_data = 
   read_csv("data/accel_data.csv") %>%
-  janitor::clean_names() %>%
-  view()
+  janitor::clean_names()
 ```
 
-Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) fo each observation, make 'minute' a double variable, and sort 'day' (days of the week) chronologically.
+*Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* *variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) fo each observation, make 'minute' a double variable, and sort 'day' (days of the week) chronologically.*
 
 ```{r tidy}
 accel_tidy_data =
@@ -69,15 +68,11 @@ accel_tidy_data =
     day_type = as.factor(ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")),
     minute = as.double(minute),
     day = as.factor(ordered(day, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))))
-
-view(accel_tidy_data)
 ```
 
 *The resulting dataset contains `r nrow(accel_tidy_data)` rows and `r ncol(accel_tidy_data)` columns, with each row representing a single minute of accelerometer data for a 63 year-old male over the course of five weeks. Variables include week number (week), day ID (day_id), day of the week (day), minute of the day starting at midnight (minute), activity count per minute (activity_count), and whether or not the observation falls on a weekday or weekend (day_type).*
 
-Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?***
-
-The following code returns a table showing the total activity counts for each day by week, with days sorted chronologically from Monday-Sunday:
+*Traditional analyses of accelerometer data focus on the total activity over the day. The following code returns a table showing the total activity counts (total_activity) for each day by week, with days sorted chronologically from Monday-Sunday*:
 
 ```{r}
 accel_tidy_data %>%
@@ -89,7 +84,16 @@ accel_tidy_data %>%
   knitr::kable(digits = 1)
 ```
 
-Accelerometer data allows the inspection of activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.***
+Are any trends apparent?***
+```{r}
+accel_tidy_data %>%
+  group_by(week, day) %>%
+  summarize(total_activity = sum(activity_count)) %>%
+  ggplot(aes(x = week, y = total_activity, color = day)) +
+  geom_point() + geom_line()
+```
+
+*Accelerometer data also allows the inspection of activity over the course of the day. The following code creates single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week*:
 
 ```{r}
 accel_tidy_data %>%
@@ -100,6 +104,8 @@ accel_tidy_data %>%
     x = "Minute",
     y = "Activity Count")
 ```
+
+Describe in words any patterns or conclusions you can make based on this graph.***
 
 ### Problem 3
 
@@ -190,7 +196,7 @@ snowfall_p =
 tmax_tmin_p / snowfall_p
 ```
 
-```{r i work}
+```{r include = FALSE}
 # Rectangular binning
 ny_noaa_tidy %>%
   ggplot(aes(x = tmin, y = tmax)) +
@@ -204,7 +210,7 @@ ny_noaa_tidy %>%
   theme(legend.position = "right")
 ```
 
-```{r ii work}
+```{r include = FALSE}
 ny_noaa_tidy %>%
   filter(
     snow > 0, snow < 100) %>% 
