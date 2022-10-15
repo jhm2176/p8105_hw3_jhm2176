@@ -147,12 +147,12 @@ ny_noaa_tidy =
 ```
 
 ```{r}
-ny_noaa_sam = 
+sample = 
   ny_noaa_tidy %>% 
   sample_n(2000) %>%
   view()
 
-head(ny_noaa_sam)
+head(sample)
 ```
 
 ```{r}
@@ -161,7 +161,7 @@ ny_noaa_tidy %>%
   arrange(desc(n))
 ```
 
-*The most commonly observed values for snowfall are 0 mm and NA by far. This is because there are significantly more days in the year with no snow (snow = 0) than days with snow. This dataset also contains extensive missing data, explaining why NA is the second most commonly observed value for snow.*
+*The most commonly observed values for snowfall are 0 mm by far, followed by NA. This is because there are significantly more days in the year with no snow (snow = 0) than days with snow. This dataset also contains extensive missing data, explaining why NA is the second most commonly observed value for snow.*
 
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interprettable structure? Any outliers? facet_grid()
 
@@ -184,13 +184,12 @@ ny_noaa_tidy %>%
 
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
-```{r i}
+```{r}
 tmax_tmin_p =
   ny_noaa_tidy %>%
-  ggplot(aes(x = tmin, y = tmax, color = id)) +
-  geom_smooth(se = FALSE) + 
-  geom_point(aes(size = prcp), alpha = .75) +
-  theme(legend.position = "none") 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex() +
+  theme(legend.position = "right")
 
 snowfall_p =
   ny_noaa_tidy %>%
@@ -198,25 +197,41 @@ snowfall_p =
     snow > 0, snow < 100) %>% 
   group_by(id, month, year) %>% 
   ggplot(aes(x = snow, color = year)) +
-  geom_density()
+  geom_density() +
+  theme(legend.position = "none") 
 
 tmax_tmin_p / snowfall_p
-
 ```
 
-```{r ii}
+```{r i work}
+# Rectangular binning
+ny_noaa_tidy %>%
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_bin2d() +
+  theme(legend.position = "right")
+
+# Hexagonal binning - WINNER
+ny_noaa_tidy %>%
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex() +
+  theme(legend.position = "right")
+```
+
+```{r ii work}
 ny_noaa_tidy %>%
   filter(
     snow > 0, snow < 100) %>% 
   group_by(id, month, year) %>% 
   ggplot(aes(x = snow, fill = year)) +
-  geom_density(alpha = 0.4, adjust = .5)
+  geom_density(alpha = 0.4, adjust = .5) +
+  theme(legend.position = "none") 
 
-ny_noaa_tidy %>%
+ny_noaa_tidy %>% #WINNER
   filter(
     snow > 0, snow < 100) %>% 
   group_by(id, month, year) %>% 
   ggplot(aes(x = snow, color = year)) +
-  geom_density()
+  geom_density(adjust = .5) +
+  theme(legend.position = "none") 
 ```
 
