@@ -1,13 +1,11 @@
 ---
 title: "Homework 3"
 author: "Jenesis Merriman"
-date: "October 15, 2022"
+date: "October 16, 2022"
 output: github_document
 ---
 
 ```{r setup, include=FALSE}
-#knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
-
 library(tidyverse)
 library(ggridges)
 library(patchwork)
@@ -36,16 +34,17 @@ library(tidyverse)
 library(readr)
 ```
 
-### Problem 1
+## Problem 1
 
 ```{r}
 data("instacart")
 ```
 
-### Problem 2
+## Problem 2
 
-*This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF).*
+This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF).
 
+### Part One
 First I will load the data while cleaning names:
 
 ```{r load}
@@ -54,7 +53,7 @@ accel_data =
   janitor::clean_names()
 ```
 
-*Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* *variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) fo each observation, make 'minute' a double variable, and sort 'day' (days of the week) chronologically.*
+Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) for each observation, convert 'minute' into a double variable, and sort 'day' (days of the week) chronologically.
 
 ```{r tidy}
 accel_tidy_data =
@@ -70,9 +69,10 @@ accel_tidy_data =
     day = as.factor(ordered(day, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))))
 ```
 
-*The resulting dataset contains `r nrow(accel_tidy_data)` rows and `r ncol(accel_tidy_data)` columns, with each row representing a single minute of accelerometer data for a 63 year-old male over the course of five weeks. Variables include week number (week), day ID (day_id), day of the week (day), minute of the day starting at midnight (minute), activity count per minute (activity_count), and whether or not the observation falls on a weekday or weekend (day_type).*
+**Description**: The resulting dataset contains `r nrow(accel_tidy_data)` rows and `r ncol(accel_tidy_data)` columns, with each row representing a single minute of accelerometer data for a 63 year-old male over the course of five weeks. Variables include week number (week), day ID (day_id), day of the week (day), minute of the day starting at midnight (minute), activity count per minute (activity_count), and whether or not the observation falls on a weekday or weekend (day_type).
 
-*Traditional analyses of accelerometer data focus on the total activity over the day. The following code returns a table showing the total activity counts (total_activity) for each day by week, with days sorted chronologically from Monday-Sunday*:
+### Part Two
+Traditional analyses of accelerometer data focus on the total activity over the day. The following code returns a table showing the total activity counts (total_activity) for each day by week, with days sorted chronologically from Monday-Sunday:
 
 ```{r}
 accel_tidy_data %>%
@@ -83,29 +83,42 @@ accel_tidy_data %>%
     values_from = "total_activity") %>%
   knitr::kable(digits = 1)
 ```
+To help me better visualize trends in this data, the following code creates a plot displaying total_activity over time by day of the week:
 
-Are any trends apparent?***
 ```{r}
 accel_tidy_data %>%
   group_by(week, day) %>%
   summarize(total_activity = sum(activity_count)) %>%
   ggplot(aes(x = week, y = total_activity, color = day)) +
-  geom_point() + geom_line()
+  geom_point() + 
+  geom_line() +
+   labs(
+    title = "Total activity over time")
 ```
+**Trends**: Total activity varies by day and by week. For example, total activity for Monday increases significantly from week 1 to week 3, then decreases from week 3 to week 5, while total activity for Sunday decreases steadily over time, except a slight increase between week 2 and week 3. At the start of data collection, activity was higher at the end of the week (Friday-Sunday) than the beginning of it (Mon-Wednesday). At the end of data collection, activity counts were lowest on the weekend (Sat-Sun). Notably, total activity for Saturday in weeks 4 and 5 is stagnant at 1440. Since our activity variables represent activity counts for each minute of a 24-hour day and there are 1440 minutes in a day, a total_activity count of 1440 is unusual, indicating 1 activity count per minute. This may indicate that no activity was recorded on these two Saturdays or something else, but it is impossible to know for sure without more information.
 
-*Accelerometer data also allows the inspection of activity over the course of the day. The following code creates single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week*:
+### Part Three
+Accelerometer data also allows the inspection of activity over the course of the day. The following code creates a single-panel plot that shows the 24-hour activity time courses for each day, using color to indicate the day of the week:
 
 ```{r}
 accel_tidy_data %>%
   ggplot(aes(x = minute, y = activity_count, color = day)) +
-  geom_line() + 
+  geom_point(alpha = 0.5) + 
+    labs(
+    title = "Activity time courses by day",
+    x = "Minute",
+    y = "Activity Count")
+
+accel_tidy_data %>%
+  ggplot(aes(x = minute, y = activity_count, color = day)) +
+  geom_line(alpha = 0.5) + 
     labs(
     title = "Activity time courses by day",
     x = "Minute",
     y = "Activity Count")
 ```
 
-Describe in words any patterns or conclusions you can make based on this graph.***
+**Patterns**: Based on this graph, most activity occurs between 7am and 10 pm. This makes sense considering most adults sleep somewhere between 10 pm and 7 am. Activity count peaks around 9 pm (minutes ≈ 1250) on weekdays and late morning (minutes ≈ 500-750) on weekends. This pattern is not unusual, considering most adults work during weekdays and may be more active after work in the evenings or during the day on weekends. 
 
 ### Problem 3
 
