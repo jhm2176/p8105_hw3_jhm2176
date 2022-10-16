@@ -9,6 +9,7 @@ output: github_document
 library(tidyverse)
 library(ggridges)
 library(patchwork)
+library(readr)
 
 library(p8105.datasets)
 
@@ -29,11 +30,6 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-```{r load_libraries}
-library(tidyverse)
-library(readr)
-```
-
 ## Problem 1
 
 ```{r}
@@ -45,7 +41,7 @@ data("instacart")
 This problem uses five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF).
 
 ### Part One
-First I will load the data while cleaning names:
+First I will load the data while cleaning names.
 
 ```{r load}
 accel_data = 
@@ -53,7 +49,7 @@ accel_data =
   janitor::clean_names()
 ```
 
-Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day (weekday vs. weekend) for each observation, convert 'minute' into a double variable, and sort 'day' (days of the week) chronologically.
+Next, I will tidy the data, using `pivot_longer` to collapse all 1440 activity\* variables into two new variables 'minute' and 'activity_count'. I will also use `mutate` to create a new 'day_type' factor variable indicating the type of day for each observation, convert 'minute' into a double variable, and sort 'day' chronologically.
 
 ```{r tidy}
 accel_tidy_data =
@@ -72,7 +68,7 @@ accel_tidy_data =
 **Description**: The resulting dataset contains `r nrow(accel_tidy_data)` rows and `r ncol(accel_tidy_data)` columns, with each row representing a single minute of accelerometer data for a 63 year-old male over the course of five weeks. Variables include week number (week), day ID (day_id), day of the week (day), minute of the day starting at midnight (minute), activity count per minute (activity_count), and whether or not the observation falls on a weekday or weekend (day_type).
 
 ### Part Two
-Traditional analyses of accelerometer data focus on the total activity over the day. The following code returns a table showing the total activity counts (total_activity) for each day by week, with days sorted chronologically from Monday-Sunday:
+Traditional analyses of accelerometer data focus on the total activity over the day. The following code returns a table showing the total activity counts (total_activity) for each day by week, with days sorted chronologically from Monday-Sunday.
 
 ```{r}
 accel_tidy_data %>%
@@ -83,7 +79,7 @@ accel_tidy_data %>%
     values_from = "total_activity") %>%
   knitr::kable(digits = 1)
 ```
-To help me better visualize trends in this data, the following code creates a plot displaying total_activity over time by day of the week:
+To help me better visualize trends in this data, the following code creates a plot displaying total_activity over time by day of the week.
 
 ```{r}
 accel_tidy_data %>%
@@ -95,10 +91,11 @@ accel_tidy_data %>%
    labs(
     title = "Total activity over time")
 ```
-**Trends**: Total activity varies by day and by week. For example, total activity for Monday increases significantly from week 1 to week 3, then decreases from week 3 to week 5, while total activity for Sunday decreases steadily over time, except a slight increase between week 2 and week 3. At the start of data collection, activity was higher at the end of the week (Friday-Sunday) than the beginning of it (Mon-Wednesday). At the end of data collection, activity counts were lowest on the weekend (Sat-Sun). Notably, total activity for Saturday in weeks 4 and 5 is stagnant at 1440. Since our activity variables represent activity counts for each minute of a 24-hour day and there are 1440 minutes in a day, a total_activity count of 1440 is unusual, indicating 1 activity count per minute. This may indicate that no activity was recorded on these two Saturdays or something else, but it is impossible to know for sure without more information.
+
+**Trends**: Total activity varies by day and by week. For example, total activity for Monday increases significantly from week 1 to week 3, then decreases from week 3 to week 5, while total activity for Sunday decreases steadily over time, except for a slight increase between week 2 and week 3. At the start of data collection, activity was higher at the end of the week (Friday-Sunday) than the beginning of it (Monday-Wednesday). At the end of data collection, activity counts were lowest on the weekend (Saturday-Sunday). Notably, total activity for Saturday in weeks 4 and 5 is stagnant at 1440. Since our activity variables represent activity counts for each minute of a 24-hour day and there are 1440 minutes in a day, a total_activity count of 1440 is unusual, indicating 1 activity count per minute. This may indicate that no activity was recorded on these two Saturdays, or something else, but it is impossible to know for sure without more information.
 
 ### Part Three
-Accelerometer data also allows the inspection of activity over the course of the day. The following code creates a single-panel plot that shows the 24-hour activity time courses for each day, using color to indicate the day of the week:
+Accelerometer data also allows the inspection of activity over the course of the day. The following code creates a single-panel plot that shows the 24-hour activity time courses for each day, using color to indicate the day of the week.
 
 ```{r}
 accel_tidy_data %>%
@@ -110,11 +107,13 @@ accel_tidy_data %>%
     y = "Activity Count")
 ```
 
-**Patterns**: Based on this graph, most activity occurs between 7am and 10 pm. This makes sense considering most adults sleep somewhere between 10 pm and 7 am. Activity count peaks around 9 pm (minutes ≈ 1250) on weekdays and late morning (minutes ≈ 500-750) on weekends. This pattern is not unusual, considering most adults work during weekdays and may be more active after work in the evenings or during the day on weekends. 
+**Interpretation**: Based on this graph, most activity occurs between 7am and 10 pm. This makes sense considering most adults sleep somewhere between 10 pm and 7 am. Activity count peaks around 9 pm (minutes ≈ 1250) on weekdays and late morning (minutes ≈ 500-750) on weekends. This pattern is not unusual, considering most adults work during weekdays and may be more active after work in the evenings or during the day on weekends. 
 
-### Problem 3
+## Problem 3
 
-The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and indicating the extent to which missing data is an issue.
+This problem uses the NY NOAA data. 
+
+First, I will load the data and describe it.
 
 ```{r}
 data("ny_noaa")
@@ -122,18 +121,12 @@ data("ny_noaa")
 ny_noaa = 
   ny_noaa %>% 
   as_tibble(ny_noaa)
-
-summary(ny_noaa)
-head(ny_noaa)
 ```
 
-*This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns, with each row representing a single observation from a New York state weather station between January 1, 1981 and December 31, 2010. Variables include weather station ID (id), date of observation (date), precipitation in tenths of mm (prcp), snowfall in mm (snow), snow depth in mm (snwd), maximum temperature in tenths of degrees C (tmax), and minimum temperature in tenths of degrees C (tmin). Because each weather station may collect only a subset of these variables, this dataset contains substantial missing data. There are `r sum(is.na(ny_noaa))` values missing in this dataset.*
+**Description**: This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns, with each row representing a single observation from a New York state weather station between January 1, 1981 and December 31, 2010. Variables include weather station ID (id), date of observation (date), precipitation in tenths of mm (prcp), snowfall in mm (snow), snow depth in mm (snwd), maximum temperature in tenths of degrees C (tmax), and minimum temperature in tenths of degrees C (tmin). Because each weather station may collect only a subset of these variables, this dataset contains substantial missing data. There are `r sum(is.na(ny_noaa))` missing values in this dataset.
 
-Then, do or answer the following (commenting on the results of each):
-
-Do some data cleaning. Create separate variables for year, month, and day. Ensure observations for temperature, precipitation, and snowfall are given in reasonable units.
-
-*To clean the data, the following code uses `separate` to create separate variables for year, month, and day and `mutate` to convert variables to reasonable types and units. Specifically, 'tmax' and 'tmin' were converted from tenths of degrees celsius to degrees celsius by transforming the variable type from character to numeric and dividing each value by 10. Similarly, 'prcp' was converted from tenths of a millimeter to millimeters by dividing each value by 10.*
+### Part One
+Next, I will clean the data. The following code uses `separate` to create separate variables for year, month, and day and `mutate` to convert variables to reasonable types and units. Specifically, 'tmax' and 'tmin' were converted from tenths of degrees celsius to degrees celsius by transforming the variable type from character to numeric and dividing each value by 10. Similarly, 'prcp' was converted from tenths of a millimeter to millimeters by dividing each value by 10.
 
 ```{r}
 ny_noaa_tidy =
@@ -152,18 +145,20 @@ ny_noaa_tidy =
     tmin = as.double(tmin / 10))
 ```
 
-For snowfall, what are the most commonly observed values? Why?
+**For snowfall, what are the most commonly observed values? Why?**
+
 ```{r}
 ny_noaa_tidy %>% 
   count(snow) %>% 
   arrange(desc(n))
 ```
 
-*The most commonly observed values for snowfall are 0 mm by far, followed by NA. This is because there are significantly more days in the year with no snow (snow = 0) than days with snow. This dataset also contains extensive missing data, explaining why NA is the second most commonly observed value for snow.*
+The most commonly observed values for snowfall are 0 mm by far, followed by NA. This is because there are significantly more days in the year with no snow (snow = 0) than days with snow in New York. This dataset also contains extensive missing data, explaining why NA is the second most commonly observed value for snow.
 
-Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interprettable structure? Any outliers?***
+### Part Two
+The following code creates a two-panel plot showing the average max temperature in January and in July in each station across years.
 
-```{r}
+```{r fig.width = 10}
 ny_noaa_tidy %>%
   filter(
     month %in% c("January","July")) %>% 
@@ -172,17 +167,21 @@ ny_noaa_tidy %>%
     tmax_mean = mean(tmax, na.rm = TRUE)) %>% 
   ggplot(aes(x = year, y = tmax_mean, group = id, color = id)) +
   geom_line(show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle = 60)) +
   facet_grid(.~month) +
-  theme(axis.text.x = element_blank(), legend.position = "none") +
   labs(
-    title = "Mean max temperature over time ",
-    x = "Year (1981-2010)",
+    title = "Mean max temperature over time",
+    x = "Year",
     y = "Mean Max Temperature (C)")
 ```
 
-Make a two-panel plot showing (i) tmax vs tmin for the full dataset (a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+**Interpretation**: As expected, values for mean max temperature are higher in July than in January for our data in New York. Values fluctuate over time for each month. In January, mean max temperature ranges from -10 to 10 degrees C, on average. In July, mean max temperature ranges from 20 to 35 degrees C, on average. There are a few outliers in each month, including in January 1982, 1993, 2000, and 2004 and in July 1984, 1988, 2004, and 2007.
 
-```{r}
+### Part Three
+
+The following code uses patchwork to create a two-panel plot showing (i) tmax vs tmin for the full dataset; and (ii) the distribution of snowfall values greater than 0 and less than 100 separately by year. I will use `geom_hex` and `geom_density` for each plot, respectively.
+
+```{r fig.height = 8}
 tmax_tmin_p =
   ny_noaa_tidy %>%
   ggplot(aes(x = tmin, y = tmax)) +
@@ -192,44 +191,11 @@ tmax_tmin_p =
 snowfall_p =
   ny_noaa_tidy %>%
   filter(
-    snow > 0, snow < 100) %>% 
+     snow > 0, snow < 100) %>% 
   group_by(id, month, year) %>% 
   ggplot(aes(x = snow, color = year)) +
   geom_density() +
-  theme(legend.position = "none") 
+  theme(legend.position = "right")
 
 tmax_tmin_p / snowfall_p
 ```
-
-```{r include = FALSE}
-# Rectangular binning
-ny_noaa_tidy %>%
-  ggplot(aes(x = tmin, y = tmax)) +
-  geom_bin2d() +
-  theme(legend.position = "right")
-
-# Hexagonal binning - WINNER
-ny_noaa_tidy %>%
-  ggplot(aes(x = tmin, y = tmax)) +
-  geom_hex() +
-  theme(legend.position = "right")
-```
-
-```{r include = FALSE}
-ny_noaa_tidy %>%
-  filter(
-    snow > 0, snow < 100) %>% 
-  group_by(id, month, year) %>% 
-  ggplot(aes(x = snow, fill = year)) +
-  geom_density(alpha = 0.4, adjust = .5) +
-  theme(legend.position = "none") 
-
-ny_noaa_tidy %>% #WINNER
-  filter(
-    snow > 0, snow < 100) %>% 
-  group_by(id, month, year) %>% 
-  ggplot(aes(x = snow, color = year)) +
-  geom_density(adjust = .5) +
-  theme(legend.position = "none") 
-```
-
