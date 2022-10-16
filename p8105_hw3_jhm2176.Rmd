@@ -166,7 +166,7 @@ accel_tidy_data %>%
     y = "Activity Count")
 ```
 
-**Interpretation**: Based on this graph, most activity occurs between 7am and 10 pm. This makes sense considering most adults sleep somewhere between 10 pm and 7 am. Activity count peaks around 9 pm (minutes ≈ 1250) on weekdays and late morning (minutes ≈ 500-750) on weekends. This pattern is not unusual, considering most adults work during weekdays and may be more active after work in the evenings or during the day on weekends. 
+**Interpretation**: Based on this graph, most activity occurs between 7 am and 10 pm. This makes sense considering most adults sleep somewhere between 10 pm and 7 am. Activity count peaks around 9 pm (minutes ≈ 1250) on weekdays and late morning (minutes ≈ 500-750) on weekends. This pattern is not unusual, considering most adults work during weekdays and may be more active after work in the evenings or during the day on weekends. 
 
 ## Problem 3
 
@@ -245,6 +245,7 @@ tmax_tmin_p =
   ny_noaa_tidy %>%
   ggplot(aes(x = tmin, y = tmax)) +
   geom_hex() +
+  labs(title = "Temperature hex plot") +
   theme(legend.position = "right")
 
 snowfall_p =
@@ -254,6 +255,7 @@ snowfall_p =
   group_by(id, month, year) %>% 
   ggplot(aes(x = snow, color = year)) +
   geom_density() +
+  labs(title = "Snowfall density plot by year") +
   theme(legend.position = "right")
 
 tmax_tmin_p / snowfall_p
