@@ -103,14 +103,6 @@ Accelerometer data also allows the inspection of activity over the course of the
 ```{r}
 accel_tidy_data %>%
   ggplot(aes(x = minute, y = activity_count, color = day)) +
-  geom_point(alpha = 0.5) + 
-    labs(
-    title = "Activity time courses by day",
-    x = "Minute",
-    y = "Activity Count")
-
-accel_tidy_data %>%
-  ggplot(aes(x = minute, y = activity_count, color = day)) +
   geom_line(alpha = 0.5) + 
     labs(
     title = "Activity time courses by day",
